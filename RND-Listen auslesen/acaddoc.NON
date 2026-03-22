@@ -1,0 +1,17 @@
+;;;;;;;   Alle Dateien Laden
+
+	(princ "Beginn des Ladens********************")
+;	(load "aca_lib1")
+;	(load "aca_lib2")
+;	(load "Werkzeugkästchen")
+;	(acad_init)
+	(princ "\nEnde des Ladens *******************\n")
+
+
+
+
+(princ "Alles geladen, Alles in Butter")
+(princ "!          Nun wird noch die Lisp-Startgruppe geladen")
+
+
+

@@ -1,0 +1,147 @@
+----------------------------------------------------------------------------------------------------
+IMBAL 3.0
+----------------------------------------------------------------------------------------------------
+
+I soliert den
+M odell
+B ereich der
+A usgewählten
+L ayouts
+
+
+Beschreibung:
+Löscht alle Modellbereichselemente die nicht in den gewählten Layouts sichtbar sind sowie die übrigen Layouts.
+
+
+Weitere Befehle:
+imb:Languages - Gibt eine Liste der in IMBAL integrierten Sprachen aus.
+(imb:Language "...") - Voreinstellung einer Sprache für IMBAL über einen dreistelligen Code (als Zeichenkette), wenn eine andere Sprache verwendet werden soll, als die der AutoCAD-Installation. Bsp.: (imb:Language "407") stellt die Sprache Deutsch ein. Für ein Reset auf die Sprache der AutoCAD-Installation kann (imb:Language "0") verwendet werden.
+
+Derzeit integrierte Sprachen (Stand Dez. 2015):
+407 - Deutsch
+409 - Englisch
+40A - Spanisch
+410 - Italienisch
+40C - Französisch
+HES - Hessisch
+BAY - Bayrisch
+
+
+Lauffähig unter Acad ab mindestens Version 2015 und BricsCAD ab v15
+
+
+IMBAL funktioniert nicht unter AutoCAD LT und kann in Verbindung mit vertikalen Autodesk-Produkten oder anderen Applikationen
+zu unerwünschten Ergebnissen führen.
+
+Bei Fragen hierzu: Mail an m.hoffmann@CADmaro.de
+
+
+Revisionshistorie:
+
+
+
+3.0:	Dez-17-2015
+Update für AutoCAD ab Version 2015.
+Export von Layouts ohne VPorts zugelassen
+
+2.3b:	Jul-21-2015
+Vorbereitung für Unterstützung von ZWCAD.
+
+2.3a:	Mär-15-2012
+WBLOCK-Aufrufe internationalisiert. (Danke an Hr. Bühnemann)
+
+2.3:	Dez-01-2010
+Einstellung für IMAGEFRAME korrigiert
+ALLE und EINIGE isolieren jetzt ebenfalls ausschließlich die angezeigten Modellbereichsobjekte
+PDF- und DGN-Anhänge hinzugefügt.
+Abwärtskompatibilität bis Acad 2000 verbessert.
+
+
+2.2:	Nov-09-2008
+IMBAL ging bisher nur von 2d-Koordinaten für das Clipping-Objekt zugeschnittener VPorts aus.
+
+
+2.1:	Aug-27-2008
+Fehler beim Setzen der Systemvariablen beseitigt.
+Objekte in Ansichtsfenstern wurden nicht gewählt, wenn für den Crossing Polygon identische Punkte in der Punktliste waren.
+
+
+2.0:	Jun-01-2008
+- Zusätzliche Wahlmöglichkeiten um einige Layouts zu isolieren und um mehrere Layouts zu erhalten (gemeinsam isolieren).
+- Polygonale Ansichtsfenster werden unterstützt, wenn keine Bögen enthalten sind.
+- Applikationsobjekte werden aus Rücksicht auf mögliche Abhängigkeiten nicht gelöscht.
+- Lokalisierung eingebaut: In dt. AutoCAD-Versionen kommen dt. Programm-Rückgaben, sonst die Sprache der AutoCAD-Installation, wenn die Sprache von IMBAL unterstützt wird. - Kennt IMBAL die aktuelle AutoCAD-Sprache nicht, wird engl. ausgegeben.
+- Die Sprache kann auf Wunsch mit der Funktion (mx:Language "407") voreingestellt werden.
+- Danke an den Betatester Marc Scherer sowie Nicole Scheibner (franz.), Melanie Kiener (span.) Thomas Flandera und Gabriella Caccavo (ital.) für die Übersetzungen!
+
+
+1.2d:	Mar-06-2006
+- Wahlmöglichkeit, ob alle oder nur das aktuelle Layout isoliert werden.
+
+
+1.2c:	Apr-25-2003
+- Sehr kleine Ansichtsfenster führten zu CVPORT-Fehlermeldung. IMBAL zoomt nun auf diese Fenster, bevor sie geschaltet werden (Danke an Peter Heuser!)
+
+
+1.2a:	Apr-11-2003
+- Ausgeschaltete Ansichtsfenster führten zu CVPORT-Fehlermeldung Werden nun übergangen. (Danke an Caladia!)
+
+
+1.2:	Sep-25-2002
+- Probleme mit der Anzeige der Plotstile behoben.
+
+
+1.1:	Mai-22-2002
+- IMBAL löscht nun auch überfluessige Layouts, stellt auf Wunsch die Konturen der VPorts im Modellbereich dar und bereinigt die Zeichung.
+- Außerdem wurden einige Probleme mit polygonalen VPorts beseitigt.
+
+
+ Version: 1.0
+ Nov-12-2001
+ ------------
+
+
+----------------------------------------------------------------------------------------------------
+Copyright (C) 2015 Markus Hoffmann
+www.CADmaro.de
+----------------------------------------------------------------------------------------------------
+Lizenz
+Es wird darauf hingewiesen, dass nach dem Stand der Technik es nicht
+möglich
+ist, Computersoftware so zu erstellen, dass sie in allen Kombinationen und
+Anwendungen fehlerfrei arbeitet. Vertragsgegenstand ist daher nur eine im
+Sinne
+der Beschreibung und Benutzungsanleitung grundsätzlich brauchbare Software.
+
+1. COPYRIGHT
+Die SOFTWARE wird in Form einer kompilierten Datei dem Endanwender
+überlassen.
+Die SOFTWARE ist ein urheberrechtlich geschütztes Programm, das
+Urheberrecht
+liegt bei Markus Hoffmann. Ein Anspruch auf Herausgabe des Quellcodes
+besteht
+nicht. Die SOFTWARE darf nicht verändert, dekompiliert, disassembliert,
+entschlüsselt, extrahiert oder irgendwie anderweitig verändert werden. Die
+SOFTWARE oder Teile davon dürfen nicht an Dritte vermietet, verkauft,
+weiterlizenziert oder sonst in irgendeiner Form ohne ausdrückliche
+Genehmigung
+von Markus Hoffmann weitervermarktet werden.
+
+2. NUTZUNGSERLAUBNIS.
+Die Software ist Freeware. Sie sind berechtigt, die SOFTWARE kostenlos und
+zeitlich uneingeschränkt zu nutzen.
+
+3. REPRODUKTION.
+Sie sind berechtigt, diese SOFTWARE mit den damit verbundenen Dateien an
+Dritte
+weiterzugeben, solange Sie exakte Kopien ohne Veränderung (Weglassen oder
+Hinzufügen von Dateien, Verändern jeglicher Art) anfertigen.
+
+4. AKTUALISIERUNG.
+Der Autor ist nicht verpflichtet, Updates für diese SOFTWARE
+bereitzustellen.
+Jedoch werden alle von dem Autor bereitgestellten Updates von dieser
+Lizenzvereinbarung mit abgedeckt.
+
+5. SCHLUSSBESTIMMUNGEN:
+Für diese LIZENZ gelten die gesetzlichen Bestimmungen Deutschlands. 

@@ -1,0 +1,285 @@
+;; JoinLineToPolyline.lsp
+;; Verbindet Linien zu geschlossenen Polylinien und färbt sie ein
+;; Version 2.2 - Behebt Duplikatpunkte-Problem
+
+(defun c:joinpoly (/ ss i ent entlist all-lines processed-lines closed-chains count short-count)
+  (princ "\nJOINPOLY - Verbindet Linien zu geschlossenen Polylinien")
+  (princ "\n========================================================")
+  
+  ;; Objekte auswählen
+  (setq ss (ssget '((0 . "LINE"))))
+  
+  (if ss
+    (progn
+      (princ (strcat "\n" (itoa (sslength ss)) " Linien gefunden."))
+      (setq all-lines '())
+      (setq processed-lines '())
+      (setq closed-chains '())
+      (setq count 0)
+      (setq short-count 0)
+      
+      ;; Alle Linien in eine Liste einlesen und kurze Linien sofort löschen
+      (setq i 0)
+      (repeat (sslength ss)
+        (setq ent (ssname ss i))
+        (setq entlist (entget ent))
+        (setq pt-start (cdr (assoc 10 entlist)))
+        (setq pt-end (cdr (assoc 11 entlist)))
+        (setq line-length (distance pt-start pt-end))
+        
+        ;; Prüfe Linienlänge
+        (if (< line-length 0.005)
+          (progn
+            ;; Linie ist zu kurz - löschen
+            (entdel ent)
+            (setq short-count (1+ short-count))
+          )
+          (progn
+            ;; Linie ist lang genug - in Liste aufnehmen
+            (setq all-lines (cons (list ent pt-start pt-end) all-lines))
+          )
+        )
+        (setq i (1+ i))
+      )
+      
+      (if (> short-count 0)
+        (princ (strcat "\n" (itoa short-count) " kurze Linie(n) (< 0.005) wurden gelöscht."))
+      )
+      
+      (if all-lines
+        (progn
+          (princ (strcat "\n" (itoa (length all-lines)) " Linien werden verarbeitet."))
+          
+          ;; Verarbeitung: Suche nach verbundenen Linienzügen
+          (foreach line-data all-lines
+            (if (not (member (car line-data) processed-lines))
+              (progn
+                (setq chain (build-chain-bidirectional (car line-data) all-lines))
+                (if (and chain (> (length chain) 2))
+                  (progn
+                    ;; Prüfen ob geschlossen
+                    (if (is-closed-chain chain all-lines)
+                      (progn
+                        ;; Speichere geschlossene Kette
+                        (setq closed-chains (cons chain closed-chains))
+                        ;; Markiere alle verarbeiteten Linien
+                        (foreach line-ent chain
+                          (setq processed-lines (cons line-ent processed-lines))
+                        )
+                        (setq count (1+ count))
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+          
+          ;; Erstelle Polylinien aus geschlossenen Ketten
+          (foreach chain closed-chains
+            (create-polyline-from-chain chain all-lines)
+          )
+          
+          (princ (strcat "\n" (itoa count) " geschlossene Polylinie(n) wurden erstellt."))
+        )
+        (princ "\nKeine gültigen Linien zum Verarbeiten übrig.")
+      )
+    )
+    (princ "\nKeine Linien ausgewählt.")
+  )
+  (princ)
+)
+
+;; Funktion: Baue Kette bidirektional (in beide Richtungen)
+(defun build-chain-bidirectional (start-ent all-lines / chain used-ents changed)
+  (setq chain (list start-ent))
+  (setq used-ents (list start-ent))
+  (setq changed T)
+  
+  ;; Wiederhole solange neue Linien gefunden werden
+  (while changed
+    (setq changed nil)
+    
+    ;; Durchsuche alle Linien in der aktuellen Kette
+    (foreach current-ent chain
+      (setq current-data (get-line-data current-ent all-lines))
+      (if current-data
+        (progn
+          (setq current-start (cadr current-data))
+          (setq current-end (caddr current-data))
+          
+          ;; Suche nach angrenzenden Linien
+          (foreach line-data all-lines
+            (if (not (member (car line-data) used-ents))
+              (progn
+                (setq test-ent (car line-data))
+                (setq test-start (cadr line-data))
+                (setq test-end (caddr line-data))
+                
+                ;; Prüfe alle möglichen Verbindungen
+                (if (or (equal current-start test-start 0.0001)
+                        (equal current-start test-end 0.0001)
+                        (equal current-end test-start 0.0001)
+                        (equal current-end test-end 0.0001))
+                  (progn
+                    (setq chain (append chain (list test-ent)))
+                    (setq used-ents (cons test-ent used-ents))
+                    (setq changed T)
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  chain
+)
+
+;; Funktion: Hole Linien-Daten aus der Liste
+(defun get-line-data (ent all-lines / result)
+  (setq result nil)
+  (foreach line-data all-lines
+    (if (equal (car line-data) ent)
+      (setq result line-data)
+    )
+  )
+  result
+)
+
+;; Funktion: Prüfe ob Kette geschlossen ist
+(defun is-closed-chain (chain all-lines / endpoints pt count)
+  (setq endpoints '())
+  
+  ;; Sammle alle Endpunkte
+  (foreach ent chain
+    (setq line-data (get-line-data ent all-lines))
+    (if line-data
+      (progn
+        (setq endpoints (cons (cadr line-data) endpoints))  ; Startpunkt
+        (setq endpoints (cons (caddr line-data) endpoints)) ; Endpunkt
+      )
+    )
+  )
+  
+  ;; Prüfe ob alle Punkte genau 2x vorkommen (= geschlossen)
+  (setq all-closed T)
+  (foreach pt endpoints
+    (setq count 0)
+    (foreach test-pt endpoints
+      (if (equal pt test-pt 0.0001)
+        (setq count (1+ count))
+      )
+    )
+    ;; Wenn ein Punkt nicht genau 2x vorkommt, ist die Kette nicht geschlossen
+    (if (/= count 2)
+      (setq all-closed nil)
+    )
+  )
+  all-closed
+)
+
+;; Funktion: Erstelle Polylinie aus Kette und färbe sie (KOMPLETT NEU)
+(defun create-polyline-from-chain (chain all-lines / 
+                                    pt-list current-ent current-data 
+                                    current-start current-end next-ent 
+                                    next-data next-start next-end
+                                    used-ents found last-pt
+                                    pline-data)
+  
+  ;; Starte mit der ersten Linie
+  (setq used-ents '())
+  (setq current-ent (car chain))
+  (setq used-ents (cons current-ent used-ents))
+  (setq current-data (get-line-data current-ent all-lines))
+  (setq current-start (cadr current-data))
+  (setq current-end (caddr current-data))
+  
+  ;; Initialisiere Punktliste mit dem Startpunkt
+  (setq pt-list (list current-start))
+  (setq last-pt current-end)
+  
+  ;; Durchlaufe die restlichen Linien
+  (repeat (1- (length chain))
+    (setq found nil)
+    
+    ;; Finde die nächste verbundene Linie
+    (foreach test-ent chain
+      (if (and (not (member test-ent used-ents))
+               (not found))
+        (progn
+          (setq next-data (get-line-data test-ent all-lines))
+          (setq next-start (cadr next-data))
+          (setq next-end (caddr next-data))
+          
+          ;; Prüfe welcher Endpunkt von test-ent an last-pt anschließt
+          (cond
+            ;; Fall 1: next-start verbindet sich mit last-pt
+            ((equal last-pt next-start 0.0001)
+             (setq pt-list (append pt-list (list next-start)))
+             (setq last-pt next-end)
+             (setq used-ents (cons test-ent used-ents))
+             (setq found T)
+            )
+            ;; Fall 2: next-end verbindet sich mit last-pt
+            ((equal last-pt next-end 0.0001)
+             (setq pt-list (append pt-list (list next-end)))
+             (setq last-pt next-start)
+             (setq used-ents (cons test-ent used-ents))
+             (setq found T)
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  ;; Entferne Duplikate (sicherheitshalber)
+  (setq pt-list (remove-duplicate-points pt-list))
+  
+  ;; Erstelle Polylinie
+  (command "_.PLINE")
+  (foreach pt pt-list
+    (command pt)
+  )
+  (command "_C")
+  
+  ;; Färbe die Polylinie mit Farbe 171
+  (setq pline-data (entget (entlast)))
+  (if (assoc 62 pline-data)
+    (setq pline-data (subst (cons 62 171) (assoc 62 pline-data) pline-data))
+    (setq pline-data (append pline-data (list (cons 62 171))))
+  )
+  (entmod pline-data)
+  
+  ;; Lösche originale Linien
+  (foreach line-ent chain
+    (entdel line-ent)
+  )
+)
+
+;; Hilfsfunktion: Entferne doppelte Punkte aus Liste
+(defun remove-duplicate-points (pt-list / result)
+  (setq result '())
+  (foreach pt pt-list
+    (if (not (member-point pt result))
+      (setq result (append result (list pt)))
+    )
+  )
+  result
+)
+
+;; Hilfsfunktion: Prüfe ob Punkt bereits in Liste
+(defun member-point (pt pt-list / found)
+  (setq found nil)
+  (foreach test-pt pt-list
+    (if (equal pt test-pt 0.0001)
+      (setq found T)
+    )
+  )
+  found
+)
+
+(princ "\nJOINPOLY geladen. Tippen Sie 'joinpoly' zum Starten.")
+(princ)

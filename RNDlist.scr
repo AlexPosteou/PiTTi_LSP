@@ -1,0 +1,5 @@
+(load "C:/BieberCAD/lsp_und_dcl/RNDlist.lsp")
+ExtractAttributes
+(setvar "filedia" 0)
+(command "_close" "n")
+(setvar "filedia" 1)

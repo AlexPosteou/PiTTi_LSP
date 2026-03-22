@@ -1,0 +1,3 @@
+(load "C:/BieberCAD/lsp_und_dcl/RNDlistopenDWGs.lsp")
+openclose
+

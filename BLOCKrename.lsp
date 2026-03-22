@@ -1,0 +1,15 @@
+(defun c:blockrename ()
+
+  (setvar "cmdecho" 0)
+  (setq pt(cadr(entsel"\nSelect Block:")))
+  (setq e1(ssget pt))
+  (setq e2 (entget (ssname e1 0)))
+  (setq blname (cdr(assoc 2 e2)))
+  ;(setq blockname (car (nentsel "\nSelect block: ")))
+  (princ blname)
+  (setq newname (getstring "\nNeuer block name: "))
+  ;(princ newname)
+  (command "_.rename" "BL" blname newname)
+)
+
+(princ)

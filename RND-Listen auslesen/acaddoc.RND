@@ -1,0 +1,45 @@
+;;;;;;;   Alle Dateien Laden
+
+	(princ "Beginn des Ladens********************")
+;	(load "aca_lib1")
+;	(load "aca_lib2")
+;	(load "Werkzeugkästchen")
+;	(acad_init)
+	(princ "\nEnde des Ladens *******************\n")
+
+
+;;;;;;;   Rundstahlmassen sollen in eine Datei pro Zeichnung geschrieben werden.
+
+; Lade RNDlist.LSP, falls es noch nicht geladen ist
+(princ "\nLade RNDlist.LSP und führe den Befehl ExtractAttributes aus...")
+(if (not (load "RNDlist.lsp" nil))
+(princ "\nFehler: Konnte RNDlist.LSP nicht laden.")
+)
+(c:ExtractAttributes)
+
+; Lade APSlist.LSP, falls es noch nicht geladen ist
+(princ "\nLade APSlist.LSP und führe den Befehl ExtractAttributes aus...")
+(if (not (load "APSlist.lsp" nil))
+(princ "\nFehler: Konnte APSlist.LSP nicht laden.")
+)
+(c:ExtractAPSAttributes)
+
+; Lade HBTlist.LSP, falls es noch nicht geladen ist
+(princ "\nLade HBTlist.LSP und führe den Befehl ExtractAttributes aus...")
+(if (not (load "HBTlist.lsp" nil))
+(princ "\nFehler: Konnte HBTlist.LSP nicht laden.")
+)
+(c:ExtractHBTAttributes)
+
+; Lade MATlist.LSP, falls es noch nicht geladen ist
+(princ "\nLade MATlist.LSP und führe den Befehl ExtractAttributes aus...")
+(if (not (load "MATlist.lsp" nil))
+(princ "\nFehler: Konnte MATlist.LSP nicht laden.")
+)
+(c:ExtractMATAttributes)
+
+(princ "Alles geladen, Alles in Butter")
+(princ "!          Nun wird noch die Lisp-Startgruppe geladen")
+
+
+
